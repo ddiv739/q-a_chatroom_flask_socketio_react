@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import socketIOClient from 'socket.io-client'
+import FlipMove from 'react-flip-move'
 
 var socket
 class App extends Component {
@@ -21,7 +22,7 @@ class App extends Component {
   componentDidMount() {
 
     socket.on('message', (msg) => {
-      this.setState((prevState) => ({
+      this.setState((prevState) => ({ 
         messages: [...prevState.messages,msg]
       }))
     })
@@ -53,20 +54,21 @@ class App extends Component {
         <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
           <p>The current time is {this.state.currentTime}.</p>
-          <ul>
-            {
-              this.state.messages.map((message, index) => 
-                <li key={index}>
-                  {message.message} {message.score} 
-                  <button onClick={(e)=>{
-                    e.preventDefault(); socket.emit('upvote', index );
-                  }}>
-                  upvote
-                  </button>
-                </li>
-              )
-            }
-          </ul>
+          <FlipMove typeName='ul'>
+              {
+                this.state.messages.map((message, index) => 
+                  <li key={message.timestamp + message.message} >
+                    {message.message} {message.score}
+                    <button onClick={(e)=>{
+                      e.preventDefault(); socket.emit('upvote', index );
+                    }}>
+                    upvote
+                    </button>
+                  </li>
+                )
+              }
+          </FlipMove>
+         
           <form>
             <input value={this.state.new_message} name="new_message" onChange={e => this.setState({new_message:e.target.value})} />
             <button onClick={(e) => {this.clickHandle(e)}}>Send Message</button>

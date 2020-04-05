@@ -35,8 +35,9 @@ def upvote_and_sort(position):
 @socketio.on('add message event')
 def add_message(message):
     print(message)
-    message_history.append({'message':message,'score':0})
-    emit('message', {'message':message,'score':0}, broadcast=True)
+    out_msg = {'message':message,'score':0, 'timestamp':time.time()}
+    message_history.append(out_msg)
+    emit('message', out_msg , broadcast=True)
 
 @socketio.on('connect')
 def connect():
