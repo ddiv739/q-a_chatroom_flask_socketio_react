@@ -19,17 +19,24 @@ class App extends Component {
   }
 
   componentDidMount() {
-    socket.emit('add message event','yo it worked')
 
     socket.on('message', (msg) => {
-      console.log(msg);
       this.setState((prevState) => ({
         messages: [...prevState.messages,msg]
       }))
     })
+
+    socket.on('new message order', (msg_list) => {
+      this.setState({messages : msg_list})
+    })
+
     //replace with fetching messages
     fetch('/time').then(res => res.json()).then(data => {
       this.setState({currentTime: data.time})
+    });
+
+    fetch('/history').then(res => res.json()).then(data => {
+      this.setState({messages: data.history})
     });
   }
 
@@ -38,6 +45,8 @@ class App extends Component {
     socket.emit('add message event', this.state.new_message)
     this.setState({new_message:''})
   }
+
+
   render() {
     return (
       <div className="App">
@@ -46,9 +55,14 @@ class App extends Component {
           <p>The current time is {this.state.currentTime}.</p>
           <ul>
             {
-              this.state.messages.map((message) => 
-                <li key={message}>
-                  {message}
+              this.state.messages.map((message, index) => 
+                <li key={index}>
+                  {message.message} {message.score} 
+                  <button onClick={(e)=>{
+                    e.preventDefault(); socket.emit('upvote', index );
+                  }}>
+                  upvote
+                  </button>
                 </li>
               )
             }
