@@ -33,7 +33,8 @@ class App extends Component {
     });
   }
 
-  clickHandle() {
+  clickHandle(e) {
+    e.preventDefault()
     socket.emit('add message event', this.state.new_message)
     this.setState({new_message:''})
   }
@@ -42,17 +43,6 @@ class App extends Component {
       <div className="App">
         <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
           <p>The current time is {this.state.currentTime}.</p>
           <ul>
             {
@@ -63,9 +53,10 @@ class App extends Component {
               )
             }
           </ul>
-        
-          <input value={this.state.new_message} name="new_message" onChange={e => this.setState({new_message:e.target.value})} />
-          <button onClick={this.clickHandle}>Send Message</button>
+          <form>
+            <input value={this.state.new_message} name="new_message" onChange={e => this.setState({new_message:e.target.value})} />
+            <button onClick={(e) => {this.clickHandle(e)}}>Send Message</button>
+          </form>
         </header>
       </div>
     );
