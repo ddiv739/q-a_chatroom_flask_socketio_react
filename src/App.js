@@ -13,7 +13,8 @@ class App extends Component {
       endpoint : "http://192.168.1.151:5000",
       messages : [],
       currentTime: 0,
-      new_message : ""
+      new_message : "",
+      client_count: 0
     }
     socket = socketIOClient(this.state.endpoint)
     this.clickHandle = this.clickHandle.bind(this)
@@ -29,6 +30,10 @@ class App extends Component {
 
     socket.on('new message order', (msg_list) => {
       this.setState({messages : msg_list})
+    })
+
+    socket.on('client count' , (count) => {
+      this.setState({client_count : count})
     })
 
     //replace with fetching messages
@@ -54,6 +59,7 @@ class App extends Component {
         <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
           <p>The current time is {this.state.currentTime}.</p>
+          <p> There are {this.state.client_count} users connected</p>
           <FlipMove typeName='ul'>
               {
                 this.state.messages.map((message, index) => 

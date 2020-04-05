@@ -1,5 +1,5 @@
 import time
-from flask import Flask
+from flask import Flask, request
 from flask_socketio import SocketIO, emit
 from flask_cors import CORS
 
@@ -9,7 +9,7 @@ CORS(app)
 socketio = SocketIO(app, cors_allowed_origins='*')
 
 message_history = []
-
+clients = set()
 @app.route('/time')
 def get_current_time():
     return {'time': time.time()}
@@ -41,10 +41,16 @@ def add_message(message):
 
 @socketio.on('connect')
 def connect():
+    print(request.sid)
+    clients.add(request.sid)
+    print(clients)
+    emit('client count', len(clients)//2 , broadcast = True)
     emit('conn resp', {'data': 'Connected'})    
 
 @socketio.on('disconnect')
 def disconnect():
+    clients.remove(request.sid)
+    emit('client count', len(clients)//2, broadcast = True)
     print('Client disconnected')
 
 if __name__ == '__main__':
