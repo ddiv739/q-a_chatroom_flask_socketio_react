@@ -1,6 +1,6 @@
 import time
 from flask import Flask, request
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO, emit, join_room
 from flask_cors import CORS
 
 
@@ -10,6 +10,7 @@ socketio = SocketIO(app, cors_allowed_origins='*')
 
 message_history = []
 clients = set()
+
 @app.route('/time')
 def get_current_time():
     return {'time': time.time()}
@@ -17,7 +18,6 @@ def get_current_time():
 @app.route('/history')
 def fetch_history():
     return {'history': message_history}
-# ----------------------- v1
 
 @socketio.on('upvote')
 def upvote_and_sort(position):
@@ -30,6 +30,12 @@ def upvote_and_sort(position):
         message_history[position],  message_history[position-1] =  message_history[position-1] ,  message_history[position]
     
     emit('new message order', message_history, broadcast = True) 
+
+@socketio.on('join')
+def new_room_join(data):
+    print(data)
+    join_room(data)
+    emit('room_message' , {'message':'Wow, you joined a room!','score':0, 'timestamp':time.time()} , room = data)
 
 # Emit message to everyone (broadcast)
 @socketio.on('add message event')
@@ -45,7 +51,6 @@ def connect():
     clients.add(request.sid)
     print(clients)
     emit('client count', len(clients)//2 , broadcast = True)
-    emit('conn resp', {'data': 'Connected'})    
 
 @socketio.on('disconnect')
 def disconnect():

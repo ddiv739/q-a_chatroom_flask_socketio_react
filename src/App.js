@@ -10,19 +10,28 @@ class App extends Component {
   constructor() {
     super();
     this.state = {
-      endpoint : "http://192.168.1.151:5000",
+      endpoint : "http://192.168.1.152:5000",
       messages : [],
       currentTime: 0,
       new_message : "",
-      client_count: 0
+      client_count: 0,
+      room : ""
     }
     socket = socketIOClient(this.state.endpoint)
     this.clickHandle = this.clickHandle.bind(this)
+    this.clickHandleRoom = this.clickHandleRoom.bind(this)
   }
 
   componentDidMount() {
 
     socket.on('message', (msg) => {
+      this.setState((prevState) => ({ 
+        messages: [...prevState.messages,msg]
+      }))
+    })
+
+    socket.on('room_message', (msg) => {
+      console.log(msg)
       this.setState((prevState) => ({ 
         messages: [...prevState.messages,msg]
       }))
@@ -52,6 +61,12 @@ class App extends Component {
     this.setState({new_message:''})
   }
 
+  clickHandleRoom(e) {
+    e.preventDefault()
+    socket.emit('join', this.state.room)
+    this.setState({room:''})
+
+  }
 
   render() {
     return (
@@ -78,6 +93,11 @@ class App extends Component {
           <form>
             <input value={this.state.new_message} name="new_message" onChange={e => this.setState({new_message:e.target.value})} />
             <button onClick={(e) => {this.clickHandle(e)}}>Send Message</button>
+          </form>
+
+          <form>
+            <input value={this.state.room} name="join_room" onChange={e => this.setState({room:e.target.value})} />
+            <button onClick={(e) => {this.clickHandleRoom(e)}}>Join room</button>
           </form>
         </header>
       </div>
