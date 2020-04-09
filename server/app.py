@@ -15,10 +15,6 @@ active_rooms = set()
 #requests. Create a decorator that returns a known error message if not so
 #client can loop back to index
 
-@app.route('/time')
-def get_current_time():
-    return {'time': time.time()}
-
 @app.route('/history')
 def fetch_history():
     targ_room = request.args.get('room')
@@ -26,6 +22,10 @@ def fetch_history():
     if(targ_room not in active_rooms) :
         return {'room_status':False, 'history': None}
     return {'room_status':True, 'history': room_message_history[targ_room]}
+
+@app.route('/roomlist')
+def fetch_roomlist():
+    return {"room_list": list(active_rooms)}
 
 @socketio.on('upvote')
 def upvote_and_sort(data):
@@ -45,6 +45,7 @@ def client_room_join(room_name):
     if(room_name not in active_rooms):
         active_rooms.add(room_name)
         room_message_history[room_name] = []
+        emit('new room', room_name, broadcast = True)
     join_room(room_name)
     emit('room_joined' , room_name)
 

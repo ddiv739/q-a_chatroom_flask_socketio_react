@@ -16,7 +16,8 @@ class App extends Component {
       new_message : "",
       new_room : "",
       client_count: 0,
-      room : null
+      room : null,
+      room_list : []
     }
     socket = socketIOClient(this.state.endpoint)
     this.clickHandle = this.clickHandle.bind(this)
@@ -24,6 +25,11 @@ class App extends Component {
   }
 
   componentDidMount() {
+    //replace with fetching messages
+    fetch('/roomlist').then(res => res.json()).then(data => {
+      console.log(data)
+      this.setState({room_list: data.room_list})
+    });
 
     socket.on('room_joined', (room_name) => {
       console.log(room_name)
@@ -32,6 +38,13 @@ class App extends Component {
         this.setState({messages: data.history, room:room_name})
       });
       // this.setState({room : room_name})
+    })
+
+    socket.on('new room', (new_room) => {
+      console.log(new_room)
+      this.setState((prevState) => ({ 
+        room_list: [...prevState.room_list,new_room]
+      }))
     })
 
     socket.on('room_message', (msg) => {
@@ -48,11 +61,6 @@ class App extends Component {
       this.setState({client_count : count})
     })
 
-    //replace with fetching messages
-    fetch('/time').then(res => res.json()).then(data => {
-      this.setState({currentTime: data.time})
-    });
-
   }
 
   clickHandle(e) {
@@ -66,19 +74,27 @@ class App extends Component {
     socket.emit('join', this.state.new_room)
   }
 
+ 
   render() {
     if(this.state.room === null) {
       return (
         <div>
           <p>Welcome to Mentos</p>
+          <FlipMove typeName='ul'>
+              {
+                this.state.room_list.map((room_name) => 
+                  <li  key={room_name} onClick={() => {socket.emit('join', room_name)}} >
+                    {room_name}
+                  </li>
+                )
+              }
+          </FlipMove>
+          {this.render_roomjoin_button}
           <form>
             <input value={this.state.new_room} name="join_room" onChange={e => this.setState({new_room:e.target.value})} />
             <button onClick={(e) => {this.clickHandleJoinRoom(e)}}>Create a room</button>
           </form>
-          <form>
-             <p>Enter Room Name: </p><input />
-            <button onClick={(e) => {this.clickHandleRoom(e)}}>Join room</button>
-          </form>
+
         </div>
       )
     }
