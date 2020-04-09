@@ -1,11 +1,9 @@
 import time
 from flask import Flask, request
 from flask_socketio import SocketIO, emit, join_room
-from flask_cors import CORS
 
 
 app = Flask(__name__)
-CORS(app)
 socketio = SocketIO(app, cors_allowed_origins='*')
 
 message_history = []
