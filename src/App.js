@@ -14,24 +14,27 @@ class App extends Component {
       messages : [],
       currentTime: 0,
       new_message : "",
+      new_room : "",
       client_count: 0,
-      room : ""
+      room : null
     }
     socket = socketIOClient(this.state.endpoint)
     this.clickHandle = this.clickHandle.bind(this)
-    this.clickHandleRoom = this.clickHandleRoom.bind(this)
+    this.clickHandleJoinRoom = this.clickHandleJoinRoom.bind(this)
   }
 
   componentDidMount() {
 
-    socket.on('message', (msg) => {
-      this.setState((prevState) => ({ 
-        messages: [...prevState.messages,msg]
-      }))
+    socket.on('room_joined', (room_name) => {
+      console.log(room_name)
+      fetch('/history?room=' + room_name).then(res => res.json()).then(data => {
+        console.log(data)
+        this.setState({messages: data.history, room:room_name})
+      });
+      // this.setState({room : room_name})
     })
 
     socket.on('room_message', (msg) => {
-      console.log(msg)
       this.setState((prevState) => ({ 
         messages: [...prevState.messages,msg]
       }))
@@ -50,25 +53,36 @@ class App extends Component {
       this.setState({currentTime: data.time})
     });
 
-    fetch('/history').then(res => res.json()).then(data => {
-      this.setState({messages: data.history})
-    });
   }
 
   clickHandle(e) {
     e.preventDefault()
-    socket.emit('add message event', this.state.new_message)
+    socket.emit('add message event', {'message':this.state.new_message, 'room': this.state.room})
     this.setState({new_message:''})
   }
 
-  clickHandleRoom(e) {
+  clickHandleJoinRoom(e) {
     e.preventDefault()
-    socket.emit('join', this.state.room)
-    this.setState({room:''})
-
+    socket.emit('join', this.state.new_room)
   }
 
   render() {
+    if(this.state.room === null) {
+      return (
+        <div>
+          <p>Welcome to Mentos</p>
+          <form>
+            <input value={this.state.new_room} name="join_room" onChange={e => this.setState({new_room:e.target.value})} />
+            <button onClick={(e) => {this.clickHandleJoinRoom(e)}}>Create a room</button>
+          </form>
+          <form>
+             <p>Enter Room Name: </p><input />
+            <button onClick={(e) => {this.clickHandleRoom(e)}}>Join room</button>
+          </form>
+        </div>
+      )
+    }
+
     return (
       <div className="App">
         <header className="App-header">
@@ -81,7 +95,7 @@ class App extends Component {
                   <li key={message.timestamp + message.message} >
                     {message.message} {message.score}
                     <button onClick={(e)=>{
-                      e.preventDefault(); socket.emit('upvote', index );
+                      e.preventDefault(); socket.emit('upvote', {'room':this.state.room, 'position': index} );
                     }}>
                     upvote
                     </button>
@@ -93,11 +107,6 @@ class App extends Component {
           <form>
             <input value={this.state.new_message} name="new_message" onChange={e => this.setState({new_message:e.target.value})} />
             <button onClick={(e) => {this.clickHandle(e)}}>Send Message</button>
-          </form>
-
-          <form>
-            <input value={this.state.room} name="join_room" onChange={e => this.setState({room:e.target.value})} />
-            <button onClick={(e) => {this.clickHandleRoom(e)}}>Join room</button>
           </form>
         </header>
       </div>
