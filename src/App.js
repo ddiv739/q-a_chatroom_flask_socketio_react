@@ -10,7 +10,7 @@ class App extends Component {
   constructor() {
     super();
     this.state = {
-      endpoint : "http://192.168.1.152:5000",
+      endpoint : "http://localhost:5000",
       messages : [],
       currentTime: 0,
       new_message : "",
