@@ -3,7 +3,13 @@ import logo from './logo.svg';
 import './App.css';
 import socketIOClient from 'socket.io-client'
 import FlipMove from 'react-flip-move'
-
+import Button from 'react-bootstrap/Button'
+import Form from 'react-bootstrap/Form'
+import Container from 'react-bootstrap/Container'
+import Row from 'react-bootstrap/Row'
+import Col from 'react-bootstrap/Col'
+import Card from 'react-bootstrap/Card'
+import ListGroup from 'react-bootstrap/ListGroup'
 var socket
 class App extends Component {
 
@@ -78,23 +84,50 @@ class App extends Component {
   render() {
     if(this.state.room === null) {
       return (
-        <div>
-          <p>Welcome to Mentos</p>
-          <FlipMove typeName='ul'>
-              {
-                this.state.room_list.map((room_name) => 
-                  <li  key={room_name} onClick={() => {socket.emit('join', room_name)}} >
-                    {room_name}
-                  </li>
-                )
-              }
-          </FlipMove>
-          {this.render_roomjoin_button}
-          <form>
-            <input value={this.state.new_room} name="join_room" onChange={e => this.setState({new_room:e.target.value})} />
-            <button onClick={(e) => {this.clickHandleJoinRoom(e)}}>Create a room</button>
-          </form>
+        <div style={{minWidth:'100vh',height:'100vh',backgroundColor:'#fcfcfc'}}>
+          <Container style={{height : '100vh',backgroundColor:'#fcfcfc'}}>
+            <Row style={{height : '100vh'}}>
+              <Col sm/>
+              <Col lg fluid>
+                <Card className="centered" class="align-center-center" >
+                  <Card.Title><h1>Collaborative Q&A Time!</h1></Card.Title>
+                  <Card.Body style={{width:'100%'}}>
+                    <p>Welcome to Collaborative Q&A Time. There is currently {this.state.client_count} users engaging in conversation.</p>
+                    <p>Hosts: Create a room and set a unique password to control your selected questions with.
+                    <br />Users: Select your room from the listing below.</p>
 
+                    <h3>Active Rooms</h3>
+                      {
+                        this.state.room_list.length===0 &&
+                          <p>There are no active rooms. Create one to get rolling!</p>
+                      }
+                    <ListGroup className="list-group-flush" >
+                      <FlipMove>
+                        {
+                          this.state.room_list.map((room_name) => 
+                            <ListGroup.Item 
+                              key={room_name} 
+                              onClick={() => {socket.emit('join', room_name)}} >
+                              <Button variant="primary">{room_name}</Button>
+                            </ListGroup.Item>
+                          )
+                        }
+                      </FlipMove>
+                    </ListGroup>
+                  </Card.Body>
+                  <Card.Body>
+                  <Form inline>
+                      <Form.Control value={this.state.new_room} name="join_room" onChange={e => this.setState({new_room:e.target.value})} />
+                      {'   '}
+                      <Button onClick={(e) => {this.clickHandleJoinRoom(e)}}>Create a room</Button>
+                    </Form>
+                  </Card.Body>
+                </Card>
+              </Col>
+              <Col sm/>
+            
+            </Row>
+          </Container>
         </div>
       )
     }
