@@ -26,7 +26,7 @@ class App extends Component {
       room_list : []
     }
     socket = socketIOClient(this.state.endpoint)
-    this.clickHandle = this.clickHandle.bind(this)
+    this.clickHandleMessage = this.clickHandleMessage.bind(this)
     this.clickHandleJoinRoom = this.clickHandleJoinRoom.bind(this)
   }
 
@@ -69,7 +69,7 @@ class App extends Component {
 
   }
 
-  clickHandle(e) {
+  clickHandleMessage(e) {
     e.preventDefault()
     socket.emit('add message event', {'message':this.state.new_message, 'room': this.state.room})
     this.setState({new_message:''})
@@ -84,17 +84,18 @@ class App extends Component {
   render() {
     if(this.state.room === null) {
       return (
-        <div style={{minWidth:'100vh',height:'100vh',backgroundColor:'#fcfcfc'}}>
+        <div className = 'parent_div' >
           <Container style={{height : '100vh',backgroundColor:'#fcfcfc'}}>
             <Row style={{height : '100vh'}}>
               <Col sm/>
               <Col lg fluid>
-                <Card className="centered" class="align-center-center" >
+                <Card className="centered align-center-center" >
                   <Card.Title><h1>Collaborative Q&A Time!</h1></Card.Title>
                   <Card.Body style={{width:'100%'}}>
                     <p>Welcome to Collaborative Q&A Time. There is currently {this.state.client_count} users engaging in conversation.</p>
                     <p>Hosts: Create a room and set a unique password to control your selected questions with.
                     <br />Users: Select your room from the listing below.</p>
+                    <p>All hosts and users are fully anonymised but please remember that room entry is not password controlled so anyone may join a session. Ask your questions accordingly.</p>
 
                     <h3>Active Rooms</h3>
                       {
@@ -116,10 +117,9 @@ class App extends Component {
                     </ListGroup>
                   </Card.Body>
                   <Card.Body>
-                  <Form inline>
+                  <Form inline onSubmit={this.clickHandleJoinRoom}>
                       <Form.Control value={this.state.new_room} name="join_room" onChange={e => this.setState({new_room:e.target.value})} />
-                      {'   '}
-                      <Button onClick={(e) => {this.clickHandleJoinRoom(e)}}>Create a room</Button>
+                      <Button type='submit'>Create a room</Button>
                     </Form>
                   </Card.Body>
                 </Card>
@@ -133,31 +133,43 @@ class App extends Component {
     }
 
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>The current time is {this.state.currentTime}.</p>
-          <p> There are {this.state.client_count} users connected</p>
-          <FlipMove typeName='ul'>
-              {
-                this.state.messages.map((message, index) => 
-                  <li key={message.timestamp + message.message} >
-                    {message.message} {message.score}
-                    <button onClick={(e)=>{
-                      e.preventDefault(); socket.emit('upvote', {'room':this.state.room, 'position': index} );
-                    }}>
-                    upvote
-                    </button>
-                  </li>
-                )
-              }
-          </FlipMove>
-         
-          <form>
-            <input value={this.state.new_message} name="new_message" onChange={e => this.setState({new_message:e.target.value})} />
-            <button onClick={(e) => {this.clickHandle(e)}}>Send Message</button>
-          </form>
-        </header>
+      <div className = 'parent_div'>
+         <Container style={{height : '100vh',backgroundColor:'#fcfcfc'}}>
+            <Row style={{height : '100vh'}}>
+              <Col sm/>
+              <Col lg fluid>
+                <Card className="centered align-center-center" >
+                  <Card.Title><h1>Collaborative Q&A Time!</h1></Card.Title>
+                    <Card.Body style={{width:'100%'}}>
+                      <ListGroup className="list-group-flush" >
+                        <FlipMove>
+                          {
+                              this.state.messages.map((message, index) =>  
+                                <ListGroup.Item key={message.timestamp + message.message}>
+                                {message.message} {message.score}
+                                <Button onClick={(e)=>{
+                                  e.preventDefault(); socket.emit('upvote', {'room':this.state.room, 'position': index} );
+                                  }}>
+                                Upvote glyph
+                                </Button>
+                                </ListGroup.Item>
+                              )
+                          }
+                        </FlipMove>
+                      </ListGroup>
+                    </Card.Body>
+                    <Card.Body>
+                      <Form inline onSubmit={this.clickHandleMessage}>
+                        <Form.Control value={this.state.new_message} name="new_message" onChange={e => this.setState({new_message:e.target.value})} />
+                        <Button type='submit'>Send Message</Button>
+                      </Form>
+                    </Card.Body>
+                  </Card>
+              </Col>
+              <Col sm/>
+            </Row>
+          </Container>
+
       </div>
     );
   }
