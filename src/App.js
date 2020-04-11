@@ -71,6 +71,9 @@ class App extends Component {
 
   clickHandleMessage(e) {
     e.preventDefault()
+    if(this.state.new_message === ''){
+      return
+    }
     socket.emit('add message event', {'message':this.state.new_message, 'room': this.state.room})
     this.setState({new_message:''})
   }
@@ -85,10 +88,9 @@ class App extends Component {
     if(this.state.room === null) {
       return (
         <div className = 'parent_div' >
-          <Container style={{height : '100vh',backgroundColor:'#fcfcfc'}}>
-            <Row style={{height : '100vh'}}>
-              <Col sm/>
-              <Col lg fluid>
+          <Container fluid className = 'parent_container'>
+            <Row  className = 'align-items-center' style={{height:'100vh'}}>
+              <Col >
                 <Card className="centered align-center-center" >
                   <Card.Title><h1>Collaborative Q&A Time!</h1></Card.Title>
                   <Card.Body style={{width:'100%'}}>
@@ -123,9 +125,7 @@ class App extends Component {
                     </Form>
                   </Card.Body>
                 </Card>
-              </Col>
-              <Col sm/>
-            
+              </Col>            
             </Row>
           </Container>
         </div>
@@ -134,14 +134,14 @@ class App extends Component {
 
     return (
       <div className = 'parent_div'>
-         <Container style={{height : '100vh',backgroundColor:'#fcfcfc'}}>
-            <Row style={{height : '100vh'}}>
-              <Col sm/>
-              <Col lg fluid>
+          <Container fluid className = 'parent_container'>
+            <Row  className = 'align-items-center' style={{height:'100vh'}}>
+              <Col>
                 <Card className="centered align-center-center" >
-                  <Card.Title><h1>Collaborative Q&A Time!</h1></Card.Title>
+                  <Card.Title><h1>{this.state.room} Room.</h1></Card.Title>
                     <Card.Body style={{width:'100%'}}>
-                      <ListGroup className="list-group-flush" >
+                      <p>Lets get chatting!</p>
+                      <ListGroup className="list-group-flush" style={{maxHeight:'40vh',minHeight:'40vh',overflowY:'auto'}} >
                         <FlipMove>
                           {
                               this.state.messages.map((message, index) =>  
@@ -164,9 +164,9 @@ class App extends Component {
                         <Button type='submit'>Send Message</Button>
                       </Form>
                     </Card.Body>
+                    <Button type='submit' onClick={(e) => {e.preventDefault(); this.setState({room: null})}}>Go Back</Button>
                   </Card>
               </Col>
-              <Col sm/>
             </Row>
           </Container>
 
