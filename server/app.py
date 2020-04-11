@@ -34,9 +34,10 @@ def upvote_and_sort(data):
     if(data['position'] == 0):
         emit('new message order', room_message_history[data['room']], room = data['room']) 
         return
-    if(room_message_history[data['room']][data['position']]['score'] > room_message_history[data['room']][data['position']-1]['score']):
-        #swap the data.positions
+
+    while(data['position']>0 and room_message_history[data['room']][data['position']]['score'] > room_message_history[data['room']][data['position']-1]['score']):
         room_message_history[data['room']][data['position']],  room_message_history[data['room']][data['position']-1] =  room_message_history[data['room']][data['position']-1] ,  room_message_history[data['room']][data['position']]
+        data['position'] -= 1
     
     emit('new message order', room_message_history[data['room']], room = data['room']) 
 
