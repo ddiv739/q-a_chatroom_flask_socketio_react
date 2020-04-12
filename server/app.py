@@ -8,7 +8,7 @@ socketio = SocketIO(app, cors_allowed_origins='*')
 message_history = []
 room_message_history = {}
 clients = set()
-active_rooms = set()
+active_rooms = []
 
 @app.route('/history')
 def fetch_history():
@@ -30,7 +30,7 @@ def fetch_roomlist():
         Fetch list of active rooms. returns dictionary with a single key
         'room_list' which denotes a list of active room names.
     '''
-    return {"room_list": list(active_rooms)}
+    return {"room_list": active_rooms}
 
 @socketio.on('upvote')
 def upvote_and_sort(data):
