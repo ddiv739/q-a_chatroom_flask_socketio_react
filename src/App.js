@@ -67,6 +67,16 @@ class App extends Component {
       this.setState({client_count : count})
     })
 
+    socket.on('connect_error', function(err) {
+      // handle error correctly. If in room revert to landing. If landing add element.
+      console.log('Error connecting to server');
+    });
+
+    socket.on('error', function(err) {
+      // System error. denotes a failure in client.
+      console.log('Error in input packet or room');
+    });
+
   }
 
   clickHandleMessage(e) {
@@ -141,7 +151,7 @@ class App extends Component {
                   <Card.Title><h1>{this.state.room} Room.</h1></Card.Title>
                     <Card.Body style={{width:'100%'}}>
                       <p>Lets get chatting!</p>
-                      <ListGroup className="list-group-flush" style={{maxHeight:'40vh',minHeight:'40vh',overflowY:'auto'}} >
+                      <ListGroup className="list-group-flush" style={{maxHeight:'40vh',overflowY:'auto'}} >
                         <FlipMove>
                           {
                               this.state.messages.map((message, index) =>  
@@ -164,7 +174,11 @@ class App extends Component {
                         <Button type='submit'>Send Message</Button>
                       </Form>
                     </Card.Body>
-                    <Button type='submit' onClick={(e) => {e.preventDefault(); this.setState({room: null})}}>Go Back</Button>
+                    <Button type='submit' onClick={(e) => {e.preventDefault(); this.setState({room: null});     fetch('/roomlist').then(res => res.json()).then(data => {
+      console.log(data)
+      this.setState({room_list: data.room_list})
+    });
+}}>Go Back</Button>
                   </Card>
               </Col>
             </Row>
