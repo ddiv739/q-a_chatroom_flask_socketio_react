@@ -65,7 +65,7 @@ def client_room_join(room_name):
     '''
     #Room does not exist - create
     if(room_name not in active_rooms):
-        active_rooms.add(room_name)
+        active_rooms.append(room_name)
         room_message_history[room_name] = []
         emit('new room', room_name, broadcast = True)
     #Allow client to join room
