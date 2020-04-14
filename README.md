@@ -4,6 +4,11 @@ To get started a host may create a room which will appear in an active room list
 
 Built using Python (Flask, Flask-SocketIO) and ReactJS (React-flip-move, react-bootstrap).
 
+![Room Selection](https://github.com/ddiv739/q-a_flask_socketio_react/blob/master/Readme%20Resources/1.PNG)
+Real-time Room Select
+![Q&A Room](https://github.com/ddiv739/q-a_flask_socketio_react/blob/master/Readme%20Resources/2.PNG)
+Real-time Q&A Room
+
 ## Features
 
 + 'Real-time' question asking
